@@ -2,38 +2,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Two-Way Communication</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignBridge — Sign & Speech Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/home.css' %}">
 </head>
-
 <body>
 
-  <header class="top-bar">
-  <h2>Your Hands, Your Voice</h2>
-</header>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
 
-  <div class="frame">
-    <!-- Header -->
-    <div class="heading-box">Two-Way Communication</div>
-    <div class="button-container">
+<div class="wrapper">
 
-      <!-- Sign to Speech -->
-      <div class="middle-text">Sign to Speech</div>
-      <a href="{% url 'signtospeech' %}" class="action-button space">
-        <img src="{% static 'images/SigntoSpeech.png' %}" alt="Sign to Speech">
-      </a>
+  <!-- Header -->
+  <header>
+   
+  </header>
 
-      <!-- Speech to Sign -->
-      <div class="middle-text">Speech to Sign</div>
-      <a href="{% url 'speechtosign' %}" class="action-button">
-        <img src="{% static 'images/SpeechtoSign.png' %}" alt="Speech to Sign">
-      </a>
+  <!-- Hero -->
+  <div class="hero">
+    <h1>your hand <span class="hl">your voice</span><br>bridging communication <span class="hl2">gap</span></h1>
+    <p>Real-time sign language to speech and speech to sign language conversion</p>
+  </div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-toggle-wrapper">
+    <div class="mode-toggle" id="toggleWrap">
+      <div class="toggle-slider" id="toggleSlider"></div>
+      <button class="mode-btn active" id="btn1" onclick="setMode('sign2speech')">
+        <span>✋</span> Sign → Speech
+      </button>
+      <button class="mode-btn" id="btn2" onclick="setMode('speech2sign')">
+        <span>🎤</span> Speech → Sign
+      </button>
+    </div>
+  </div>
+
+  <!-- Converter Card -->
+  <div class="converter" id="converterCard">
+
+    <div class="panels">
+
+      <!-- ======================== -->
+      <!-- SIGN TO SPEECH MODE      -->
+      <!-- ======================== -->
+      <div id="sign-panel" class="active">
+
+        <!-- Left: Camera Input -->
+        <div class="panel panel-left">
+          <div class="panel-label">
+            <div class="dot dot-green"></div>
+            <span>Camera Input</span>
+          </div>
+
+          <div class="camera-area" id="cameraArea" onclick="handleMainAction()">
+            <div class="cam-ring" id="camRingIdle">
+              <span class="cam-icon">📷</span>
+            </div>
+            <span class="cam-label" id="camLabel">Click Start Camera to begin camera</span>
+            <!-- MJPEG stream from Django -->
+            <img id="cameraStream" src="" alt="Camera Feed"
+                 style="display:none; width:100%; height:100%; object-fit:cover; border-radius:16px; position:absolute; inset:0; z-index:2;">
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <div id="liveTag" style="font-size: 11px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">
+              <div class="rec-dot"></div> Live Detection
+            </div>
+            <div style="font-size: 11px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px;">
+              🖐 Hand Tracking: ON
+            </div>
+          </div>
+        </div>
+
+        <!-- Arrow Center -->
+        <div class="arrow-center">
+          <div class="arrow-line"></div>
+          <button class="swap-btn" onclick="setMode('speech2sign')" title="Swap direction">⇄</button>
+          <div class="arrow-line"></div>
+        </div>
+
+        <!-- Right: Speech Output -->
+        <div class="panel">
+          <div class="panel-label">
+            <div class="dot dot-purple"></div>
+            <span>Speech Output</span>
+          </div>
+
+          <div class="output-area">
+            <div class="output-text" id="outputText">Waiting for signs…<span class="cursor-blink"></span></div>
+            <div class="confidence-bar-wrap">
+              <div class="conf-label" id="confLabel">Confidence — 0%</div>
+              <div class="confidence-bar"><div class="conf-fill" id="confFill" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <div class="conf-label" style="margin-bottom: 10px;">Waveform Output</div>
+            <div class="waveform" id="waveform"></div>
+          </div>
+
+        </div>
+
+      </div><!-- end sign-panel -->
+
+      <!-- ======================== -->
+      <!-- SPEECH TO SIGN MODE      -->
+      <!-- ======================== -->
+      <div id="speech-panel">
+
+        <!-- Left: Mic Input -->
+        <div class="panel panel-left">
+          <div class="panel-label">
+            <div class="dot dot-purple"></div>
+            <span>Microphone Input</span>
+          </div>
+
+          <div class="mic-area" id="micArea" onclick="handleMainAction()">
+            <div class="mic-ring-outer" id="micRing">
+              <span class="mic-icon">🎤</span>
+            </div>
+            <span class="mic-label" id="micLabel">Click to start speaking</span>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <div class="conf-label" style="margin-bottom: 10px;">Audio Level</div>
+            <div class="waveform" id="waveform2"></div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <div class="output-area" style="height: auto; min-height: 80px;">
+              <div style="font-size: 11px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px;">TRANSCRIPT</div>
+              <div class="output-text" id="transcriptText" style="font-size: 16px;">—<span class="cursor-blink"></span></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <input type="text" id="textInput" placeholder="Or type your text here…"
+                   style="width: 100%; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; border-radius: 12px; outline: none;">
+          </div>
+        </div>
+
+        <!-- Arrow Center -->
+        <div class="arrow-center">
+          <div class="arrow-line"></div>
+          <button class="swap-btn" onclick="setMode('sign2speech')" title="Swap direction">⇄</button>
+          <div class="arrow-line"></div>
+        </div>
+
+        <!-- Right: Sign Output -->
+        <div class="panel">
+          <div class="panel-label">
+            <div class="dot dot-green"></div>
+            <span>Sign Language Output</span>
+          </div>
+
+          <div style="font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px;">ISL Gloss Signs</div>
+
+          <!-- Current word being shown -->
+          <div id="currentWordDisplay" style="font-family:'Syne',sans-serif; font-size:22px; font-weight:700; color:var(--accent); margin-bottom:12px; min-height:30px;"></div>
+
+          <!-- Sign video player -->
+          <div style="width:100%; border-radius:16px; overflow:hidden; background:var(--surface2); border:1px solid var(--border); margin-bottom:16px;">
+            <video id="signVideo" autoplay muted style="width:100%; max-height:220px; display:block; object-fit:cover;"></video>
+          </div>
+        </div>
+
+      </div><!-- end speech-panel -->
 
     </div>
 
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="tool-btn primary" id="mainActionBtn" onclick="handleMainAction()">▶ Start Converting</button>
+      <button class="tool-btn" id="stopBtn" onclick="handleStop()" style="display:none;">⏹ Stop</button>
+      <button class="tool-btn" id="playAudioBtn" onclick="playAudio()" style="display:none;">🔊 Play Audio</button>
+      <button class="tool-btn" id="generateSignsBtn" onclick="generateSigns()" style="display:none;">🤟 Generate Signs</button>
+      <button class="tool-btn" id="copyBtn" onclick="copyText()">📋 Copy Text</button>
+      <div class="spacer"></div>
+    </div>
 
-  </div>
+  </div><!-- end converter -->
+
+</div><!-- wrapper -->
+
+<script src="{% static 'js/home.js' %}"></script>
 </body>
 </html>
