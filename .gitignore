@@ -1,25 +1,5 @@
-# Python
+venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-*.so
-.Python
-env/
-venv/
-ENV/
-
-# Data files (large, optional to commit)
-*.csv
-*.txt
-*.h5
-*.keras
-*.task
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
+db.sqlite3
+.env
