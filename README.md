@@ -92,7 +92,7 @@ If the word in gloss doesn't find a match, they will be splitted into alphabets.
 # ⚙️ Installation
 
 ## 1️⃣ Clone the Repository
-git clone https://github.com/yourusername/isl_project.git
+git clone https://github.com/yourusername/Your_Hands_Your_Voice.git
 cd isl_project
 
 ## 2️⃣ Install Dependencies
