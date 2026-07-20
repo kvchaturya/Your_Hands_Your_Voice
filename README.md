@@ -66,7 +66,7 @@ pyttsx3 – text to speech
 
 ### Speech Generation
 
-  The predicted word is converted into speech using gTTS.
+  The predicted word is converted into speech using pyttsx3.
   
 ## Speech to Sign
 
